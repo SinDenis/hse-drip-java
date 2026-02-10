@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/lecture-1-intro" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/seminar-3" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/seminar-4" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-5" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="openjdk-25" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
