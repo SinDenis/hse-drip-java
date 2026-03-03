@@ -6,6 +6,6 @@
  *   java --enable-preview --source 25 HelloWorldSimple.java
  */
 
-void main() {
-    System.out.println("Hello, World!");
-}
+//void main() {
+//    System.out.println("Hello, World!");
+//}
