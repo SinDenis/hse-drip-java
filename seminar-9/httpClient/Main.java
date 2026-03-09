@@ -50,27 +50,15 @@ public class Main {
             System.err.println("Ошибка: " + e.getMessage());
         }
 
-        // --- Часть 3: обработка 404 ---
+        // --- Часть 3: универсальный метод ---
 
         System.out.println();
-        System.out.println("=== Тест GET /unknown ===");
-        try {
-            HttpResponse response = client.executeGet(HOST, PORT, "/unknown");
-            System.out.println("Статус: " + response.getStatusCode());
-            System.out.println("Тело: " + response.getBody());
-        } catch (IOException e) {
-            System.err.println("Ошибка: " + e.getMessage());
-        }
-
-        // --- Часть 4 (дополнительная): универсальный метод ---
-
-        System.out.println();
-        System.out.println("=== Тест execute: PUT /api/echo ===");
+        System.out.println("=== Тест execute: POST /api/echo ===");
         try {
             HttpResponse response = client.execute(
-                HttpMethod.PUT, HOST, PORT, "/api/echo",
-                Map.of("Content-Type", "application/json"),
-                "{\"message\": \"hello\"}"
+                HttpMethod.POST, HOST, PORT, "/api/echo",
+                Map.of("Content-Type", "text/plain"),
+                "Привет через execute!"
             );
             System.out.println("Статус: " + response.getStatusCode());
             System.out.println("Тело: " + response.getBody());
