@@ -3,16 +3,22 @@ package httpClient.client;
 import httpClient.model.HttpMethod;
 import httpClient.model.HttpResponse;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Используйте ТОЛЬКО java.net.Socket — никаких HttpClient, HttpURLConnection и т.д.
  */
 public class MyHttpClient {
+
+    private final Pattern pattern = Pattern.compile("\\d{3}");
 
     // Вспомогательный метод — читает весь InputStream в строку
     protected String readAllFromStream(InputStream inputStream) throws IOException {
@@ -27,19 +33,18 @@ public class MyHttpClient {
 
     // Часть 1. GET-запрос через TCP-сокет.
     public HttpResponse executeGet(String host, int port, String path) throws IOException {
-        // TODO Открыть TCP-сокет: new Socket(host, port)
-        // TODO Сформировать строку запроса, которая должна выглядеть так:
-        //   GET /api/hello?name=Java HTTP/1.1\r\n
-        //   Host: localhost\r\n
-        //   Connection: close\r\n
-        //   \r\n
-        // TODO Отправить запрос: socket.getOutputStream().write(request.getBytes(StandardCharsets.UTF_8))
-        // TODO Не забыть вызвать flush()
-        // TODO Прочитать ответ: String raw = readAllFromStream(socket.getInputStream())
-        // TODO Закрыть сокет: socket.close()
-        // TODO Вернуть parseResponse(raw)
+        try (Socket socket = new Socket(host, port)) {
+            String request = "GET " + path + " HTTP/1.1\r\n" +
+                    "Host: " + host + "\r\n" +
+                    "Connection: close\r\n" +
+                    "\r\n";
+            socket.getOutputStream().write(request.getBytes(StandardCharsets.UTF_8));
+            socket.getOutputStream().flush();
 
-        throw new UnsupportedOperationException("Метод executeGet не реализован");
+
+            String raw = readAllFromStream(socket.getInputStream());
+            return parseResponse(raw);
+        }
     }
 
     // Часть 2. POST-запрос через TCP-сокет.
@@ -69,13 +74,33 @@ public class MyHttpClient {
     //   \r\n
     //   Добро пожаловать на тестовый сервер!
     private HttpResponse parseResponse(String rawResponse) {
-        // TODO Разделить rawResponse на заголовки и тело: rawResponse.split("\r\n\r\n", 2)
-        // TODO Разбить заголовочную часть на строки: headerPart.split("\r\n")
-        // TODO Из первой строки извлечь статус-код: "HTTP/1.1 200 OK" -> split(" ") -> Integer.parseInt(parts[1])
-        // TODO Остальные строки разобрать в Map: "Content-Type: text/plain" -> split(": ", 2)
-        // TODO Вернуть new HttpResponse(statusCode, headers, body)
+        String[] splited = rawResponse.split("\r\n\r\n", 2);
 
-        throw new UnsupportedOperationException("Метод parseResponse не реализован");
+        // Body
+        String body = splited.length > 1 ? splited[1] : "";
+
+        if (splited.length == 0) {
+            throw new IllegalArgumentException("No content in response");
+        }
+
+        // header
+        String headerString = splited[0];
+        String[] headerLines = headerString.split("\r\n");
+        Map<String, String> headers = new HashMap<>();
+        for (int i = 1; i < headerLines.length; i++) {
+            String header = headerLines[i];
+            String[] keyValue = header.split(": ", 2);
+            if (keyValue.length != 2) continue;
+            headers.put(keyValue[0], keyValue[1]);
+        }
+
+        // Status code
+        String statusCodeLine = headerLines[0];
+        Matcher matcher = pattern.matcher(statusCodeLine);
+        matcher.find();
+        int statusCode = Integer.parseInt(matcher.group());
+
+        return new HttpResponse(statusCode, headers, body);
     }
 
     // Часть 4. Универсальный метод: произвольный HTTP-метод + свои заголовки.
