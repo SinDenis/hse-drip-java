@@ -10,6 +10,11 @@
       <sourceFolder url="file://$MODULE_DIR$/seminar-8" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/seminar-9" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/seminar-10" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-11" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-12" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-13/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-14/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/seminar-14/src/main/resources" type="java-resource" />
     </content>
     <orderEntry type="jdk" jdkName="openjdk-25" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
