@@ -6,25 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-/**
- * Простой CSV-парсер, использующий Java Reflection API.
- * Этот класс подготовит вас к выполнению домашнего задания CsvParser.
- *
- * Ключевые методы рефлексии, которые понадобятся:
- * - clazz.getDeclaredFields() — получить все поля класса
- * - field.isAnnotationPresent(CsvName.class) — проверить наличие аннотации
- * - field.getAnnotation(CsvName.class) — получить значение аннотации
- * - field.setAccessible(true) — разрешить доступ к приватному полю
- * - field.set(obj, value) — установить значение поля
- * - field.get(obj) — прочитать значение поля
- * - clazz.getDeclaredConstructor().newInstance() — создать объект
- */
 public class SimpleCsvParser {
 
-    /**
-     * Вспомогательный метод: преобразует строку в нужный тип.
-     * Этот метод уже реализован — используйте его в parseLine().
-     */
     private Object convertValue(String value, Class<?> type) {
         if (type == int.class || type == Integer.class) {
             return Integer.parseInt(value);
@@ -40,11 +23,6 @@ public class SimpleCsvParser {
         throw new IllegalArgumentException("Неподдерживаемый тип: " + type);
     }
 
-    /**
-     * Вспомогательный метод: находит поле по имени заголовка CSV.
-     * Проверяет @CsvName, если не найдено — ищет по имени поля.
-     * Этот метод уже реализован — используйте его в parseLine().
-     */
     private Field findFieldByHeader(Class<?> clazz, String header) {
         for (Field field : clazz.getDeclaredFields()) {
             CsvName csvName = field.getAnnotation(CsvName.class);
@@ -60,23 +38,16 @@ public class SimpleCsvParser {
 
     // ==================== МЕТОДЫ ДЛЯ РЕАЛИЗАЦИИ ====================
 
-    /**
-     * Шаг 5: Получить заголовки CSV из полей класса.
-     *
-     * Для каждого поля класса:
-     * - Если поле помечено @CsvName — использовать значение аннотации
-     * - Иначе — использовать имя поля (field.getName())
-     *
-     * @param clazz класс, из которого извлекаем заголовки
-     * @return список заголовков CSV
-     */
-    public List<String> getHeaders(Class<?> clazz) {
+    private List<String> getHeaders(Class<?> clazz) {
         List<String> headers = new ArrayList<>();
-        // TODO: Получите все поля класса через clazz.getDeclaredFields()
-        // Для каждого поля:
-        //   - Проверьте field.isAnnotationPresent(CsvName.class)
-        //   - Если да: headers.add(field.getAnnotation(CsvName.class).value())
-        //   - Если нет: headers.add(field.getName())
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(CsvName.class)) {
+                CsvName annotation = field.getAnnotation(CsvName.class);
+                headers.add(annotation.value());
+            } else {
+                headers.add(field.getName());
+            }
+        }
         return headers;
     }
 
@@ -93,17 +64,19 @@ public class SimpleCsvParser {
      * @param clazz целевой класс
      * @return объект типа T с заполненными полями
      */
-    public <T> T parseLine(String line, String[] headers, Class<T> clazz) throws Exception {
-        // TODO: Реализуйте парсинг строки CSV в объект
-        // Подсказка:
-        // 1. T obj = clazz.getDeclaredConstructor().newInstance();
-        // 2. String[] values = line.split(",");
-        // 3. Для каждого i от 0 до headers.length:
-        //    a. Найдите поле: Field field = findFieldByHeader(clazz, headers[i]);
-        //    b. field.setAccessible(true);
-        //    c. field.set(obj, convertValue(values[i], field.getType()));
-        // 4. return obj;
-        return null;
+    private <T> T parseLine(String line, String[] headers, Class<T> clazz) throws Exception {
+        T obj = clazz.getDeclaredConstructor().newInstance();
+        String[] values = line.split(",");
+
+        for (int i = 0; i < headers.length; i++) {
+            Field field = findFieldByHeader(clazz, headers[i]);
+            if (field != null && i < values.length) {
+                field.setAccessible(true);
+                field.set(obj, convertValue(values[i].trim(), field.getType()));
+            }
+        }
+
+        return obj;
     }
 
     /**
@@ -117,23 +90,18 @@ public class SimpleCsvParser {
      * @return строка CSV (например: "1,Ivan Ivanov,20,true")
      */
     public String toCsvLine(Object obj, Class<?> clazz) throws Exception {
-        // TODO: Реализуйте конвертацию объекта в строку CSV
-        // Подсказка:
-        // 1. StringJoiner joiner = new StringJoiner(",");
-        // 2. Для каждого поля из clazz.getDeclaredFields():
-        //    a. field.setAccessible(true);
-        //    b. Object value = field.get(obj);
-        //    c. joiner.add(String.valueOf(value));
-        // 3. return joiner.toString();
-        return "";
+        StringJoiner joiner = new StringJoiner(",");
+
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            Object value = field.get(obj);
+            joiner.add(String.valueOf(value));
+        }
+
+        return joiner.toString();
     }
 
     // ==================== ГОТОВЫЕ МЕТОДЫ (не трогать) ====================
-
-    /**
-     * Читает CSV-файл и возвращает список объектов.
-     * Использует getHeaders() и parseLine() — реализуйте их выше.
-     */
     public <T> List<T> parseFile(String filename, Class<T> clazz) throws Exception {
         List<T> result = new ArrayList<>();
 
@@ -160,10 +128,6 @@ public class SimpleCsvParser {
         return result;
     }
 
-    /**
-     * Записывает список объектов в CSV-файл.
-     * Использует getHeaders() и toCsvLine() — реализуйте их выше.
-     */
     public <T> void writeFile(String filename, List<T> objects, Class<T> clazz) throws Exception {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             // Записываем заголовки
