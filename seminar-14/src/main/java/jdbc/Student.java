@@ -1,8 +1,5 @@
 package jdbc;
 
-/**
- * Модель данных студента.
- */
 public class Student {
 
     private int id;
