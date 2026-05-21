@@ -2,8 +2,13 @@ package task2;
 
 public class Main {
     public static void main(String[] args) {
-        new EmailChannel().send("alice@example.com", "Hello", "Welcome!");
-        new SmsChannel().send("alice@example.com", "Welcome!");
-        new PushChannel().send("device-token-123", "Hello", "Welcome!");
+        ReportNotification full = new ReportNotification(
+                "alice@example.com", "Q4 Report", "<h1>Report</h1>",
+                "noreply@example.com", 3, true, "/reports/q4.pdf");
+        System.out.println(full);
+
+        ReportNotification simple = new ReportNotification(
+                "bob@example.com", "Hi", "Hello!", null, 1, false, null);
+        System.out.println(simple);
     }
 }

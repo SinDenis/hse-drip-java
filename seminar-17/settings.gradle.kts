@@ -4,7 +4,6 @@ include(
     "core",
     "strategy",
     "factory-method",
-    "abstract-factory",
     "builder",
     "prototype",
     "adapter",
@@ -15,5 +14,4 @@ include(
     "app",
     "task1",
     "task2",
-    "task3"
 )

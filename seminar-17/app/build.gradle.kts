@@ -10,7 +10,6 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":strategy"))
     implementation(project(":factory-method"))
-    implementation(project(":abstract-factory"))
     implementation(project(":builder"))
     implementation(project(":prototype"))
     implementation(project(":adapter"))

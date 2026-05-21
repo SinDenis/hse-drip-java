@@ -1,4 +1,3 @@
-import abstractfactory.AbstractFactoryDemo;
 import adapter.AdapterDemo;
 import builder.BuilderDemo;
 import command.CommandDemo;
@@ -15,9 +14,6 @@ public class Main {
         System.out.println();
 
         FactoryMethodDemo.run();
-        System.out.println();
-
-        AbstractFactoryDemo.run();
         System.out.println();
 
         BuilderDemo.run();
