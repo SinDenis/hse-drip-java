@@ -13,57 +13,76 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("BankAccount: behaviour grouped by scenario")
+@DisplayName("BankAccount: сценарии использования")
 class NestedAccountTest {
 
     private BankAccount account;
 
     @BeforeEach
-    void initAccount() {
+    void setUp() {
         account = new BankAccount("Alice", new BigDecimal("100"));
     }
 
     @Nested
-    @DisplayName("when newly created")
+    @DisplayName("после создания")
     class WhenCreated {
 
         @Test
-        @DisplayName("balance equals the initial deposit")
+        @DisplayName("баланс равен начальному взносу")
         void balanceEqualsInitial() {
             assertEquals(new BigDecimal("100"), account.balance());
         }
 
         @Test
-        @DisplayName("owner is the one provided to constructor")
+        @DisplayName("владелец совпадает с переданным в конструктор")
         void ownerIsProvided() {
             assertEquals("Alice", account.owner());
         }
     }
 
     @Nested
-    @DisplayName("when funds are withdrawn")
+    @DisplayName("при снятии средств")
     class WhenWithdrawing {
 
         @Test
-        @DisplayName("balance decreases by the withdrawn amount")
+        @DisplayName("баланс уменьшается на сумму снятия")
         void balanceDecreases() {
             account.withdraw(new BigDecimal("30"));
             assertEquals(new BigDecimal("70"), account.balance());
         }
 
         @Test
-        @DisplayName("withdrawing more than balance throws")
+        @DisplayName("снятие сверх баланса бросает исключение")
         void overdraftThrows() {
             assertThrows(InsufficientFundsException.class,
                     () -> account.withdraw(new BigDecimal("9999")));
         }
 
         @Test
-        @Disabled("Overdraft protection is not implemented yet — see ticket BANK-42")
-        @DisplayName("overdraft protection eventually allows -100 limit")
+        @Disabled("Овердрафт ещё не реализован — тикет BANK-42")
+        @DisplayName("овердрафт до -100 будет разрешён")
         void overdraftAllowedWithinLimit() {
             account.withdraw(new BigDecimal("150"));
             assertEquals(new BigDecimal("-50"), account.balance());
+        }
+    }
+
+    @Nested
+    @DisplayName("при пополнении счёта")
+    class WhenDepositing {
+
+        @Test
+        @DisplayName("баланс увеличивается на сумму пополнения")
+        void balanceIncreases() {
+            account.deposit(new BigDecimal("50"));
+            assertEquals(new BigDecimal("150"), account.balance());
+        }
+
+        @Test
+        @DisplayName("неположительная сумма бросает IllegalArgumentException")
+        void nonPositiveAmountThrows() {
+            assertThrows(IllegalArgumentException.class,
+                    () -> account.deposit(BigDecimal.ZERO));
         }
     }
 }

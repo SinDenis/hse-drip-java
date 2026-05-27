@@ -22,4 +22,12 @@ public class NotificationService {
         Objects.requireNonNull(amount, "amount must not be null");
         notifier.send(user.email(), "Withdrawal processed: " + amount);
     }
+
+    public void notifyTransfer(User from, User to, BigDecimal amount) {
+        Objects.requireNonNull(from, "from must not be null");
+        Objects.requireNonNull(to, "to must not be null");
+        Objects.requireNonNull(amount, "amount must not be null");
+        notifier.send(from.email(), "Transfer sent: " + amount);
+        notifier.send(to.email(), "Transfer received: " + amount);
+    }
 }

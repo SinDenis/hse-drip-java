@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@DisplayName("NotificationService with a hand-written test double")
+@DisplayName("NotificationService с рукописным test double")
 class NotificationServiceTest {
 
     private RecordingNotifier notifier;
@@ -21,21 +21,23 @@ class NotificationServiceTest {
     @BeforeEach
     void setUp() {
         notifier = new RecordingNotifier();
-        service = new NotificationService(notifier);
+        service  = new NotificationService(notifier);
     }
 
     @Test
+    @DisplayName("notifyDeposit отправляет одно сообщение с суммой")
     void notifyDepositSendsExpectedMessage() {
         service.notifyDeposit(new User("alice@example.com"), new BigDecimal("100"));
 
         assertEquals(1, notifier.sent().size());
-        RecordingNotifier.Message message = notifier.sent().get(0);
-        assertEquals("alice@example.com", message.to());
-        assertTrue(message.body().contains("Deposit"));
-        assertTrue(message.body().contains("100"));
+        RecordingNotifier.Message msg = notifier.sent().get(0);
+        assertEquals("alice@example.com", msg.to());
+        assertTrue(msg.body().contains("Deposit"));
+        assertTrue(msg.body().contains("100"));
     }
 
     @Test
+    @DisplayName("notifyWithdrawal отправляет сообщение о снятии")
     void notifyWithdrawalSendsExpectedMessage() {
         service.notifyWithdrawal(new User("bob@example.com"), new BigDecimal("25"));
 
@@ -44,6 +46,21 @@ class NotificationServiceTest {
     }
 
     @Test
+    @DisplayName("notifyTransfer отправляет ровно два сообщения, оба содержат сумму")
+    void notifyTransferSendsTwoMessagesWithAmount() {
+        service.notifyTransfer(
+                new User("alice@example.com"),
+                new User("bob@example.com"),
+                new BigDecimal("250")
+        );
+
+        assertEquals(2, notifier.sent().size());
+        assertTrue(notifier.sent().get(0).body().contains("250"));
+        assertTrue(notifier.sent().get(1).body().contains("250"));
+    }
+
+    @Test
+    @DisplayName("null-аргументы отклоняются")
     void nullArgumentsAreRejected() {
         assertThrows(NullPointerException.class,
                 () -> service.notifyDeposit(null, BigDecimal.ONE));
@@ -52,11 +69,13 @@ class NotificationServiceTest {
     }
 
     @Test
+    @DisplayName("конструктор отклоняет null-notifier")
     void constructorRejectsNullNotifier() {
         assertThrows(NullPointerException.class, () -> new NotificationService(null));
     }
 
     private static final class RecordingNotifier implements Notifier {
+
         private final List<Message> sent = new ArrayList<>();
 
         @Override
@@ -68,7 +87,6 @@ class NotificationServiceTest {
             return sent;
         }
 
-        record Message(String to, String body) {
-        }
+        record Message(String to, String body) {}
     }
 }

@@ -45,6 +45,11 @@ public class BankAccount {
         balance = balance.subtract(amount);
     }
 
+    public boolean hasFunds(BigDecimal amount) {
+        Objects.requireNonNull(amount, "amount must not be null");
+        return balance.compareTo(amount) >= 0;
+    }
+
     public void transferTo(BankAccount target, BigDecimal amount) {
         Objects.requireNonNull(target, "target must not be null");
         withdraw(amount);

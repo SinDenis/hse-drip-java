@@ -1,5 +1,7 @@
 package strings;
 
+import java.util.Arrays;
+
 public final class StringUtils {
 
     private StringUtils() {
@@ -40,5 +42,16 @@ public final class StringUtils {
             }
         }
         return count;
+    }
+
+    public static boolean isAnagram(String a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        char[] chars1 = a.toLowerCase().replaceAll("[^a-z0-9]", "").toCharArray();
+        char[] chars2 = b.toLowerCase().replaceAll("[^a-z0-9]", "").toCharArray();
+        Arrays.sort(chars1);
+        Arrays.sort(chars2);
+        return Arrays.equals(chars1, chars2);
     }
 }
